@@ -1,0 +1,41 @@
+# .github/workflows/deploy.yaml
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up k3d
+      run: |
+        curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+        k3d create --name myweb
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+
+    - name: Deploy Helm Chart
+      run: |
+        helm install myweb-release ./myweb-chart -f ./myweb-chart/values.yaml
+
+    - name: Verify Deployment
+      run: |
+        kubectl wait --for=condition=available --timeout=300s deployment/{{ .Values.deployment.name }}
+        DEPLOYED_MESSAGE=$(kubectl get pods -l app={{ .Values.deployment.name }} -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
+        if [ -z "$DEPLOYED_MESSAGE" ]; then
+          echo "Error: Deployment does not expose 'Welcome to Kubernetes' message."
+          exit 1
+        fi
+
+    - name: Tear down k3d cluster
+      run: k3d delete --name myweb
