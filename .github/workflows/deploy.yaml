@@ -17,7 +17,7 @@ jobs:
     - name: Set up k3d
       run: |
         curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-        k3d create --name myweb
+        k3d create --name my-cluster
 
     - name: Set up kubectl
       uses: azure/setup-kubectl@v1
@@ -38,4 +38,4 @@ jobs:
         fi
 
     - name: Tear down k3d cluster
-      run: k3d delete --name myweb
+      run: k3d delete --name my-cluster
