@@ -64,6 +64,20 @@ This project is licensed under the MIT License.
 
 ---
 
+### Failing Deploy Helm Chart
+
+Output:
+Run helm install myweb-release ./myweb-chart \
+  
+W1204 23:38:44.751555    2633 warnings.go:70] unknown field "spec.volumes"
+Error: INSTALLATION FAILED: 1 error occurred:
+	* Deployment.apps "myweb" is invalid: [spec.template.spec.containers[0].volumeMounts[0].name: Not found: "docroot", spec.template.spec.initContainers[0].volumeMounts[0].name: Not found: "docroot"]
+
+
+Error: Process completed with exit code 1.
+
+---
+
 # Running EKS cluster in AWS
 The 
 
