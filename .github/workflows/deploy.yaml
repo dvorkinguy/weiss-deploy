@@ -26,12 +26,28 @@ jobs:
 
     - name: Deploy Helm Chart
       run: |
-        helm install myweb-release ./myweb-chart -f ./myweb-chart/values.yaml
+        helm install myweb-release ./myweb-chart \
+          --set deployment.name=myweb \
+          --set deployment.replicas=3 \
+          --set deployment.containerName=httpd \
+          --set deployment.containerImage=httpd \
+          --set deployment.cpuRequest=100m \
+          --set deployment.memoryRequest=50Mi \
+          --set deployment.cpuLimit=200m \
+          --set deployment.memoryLimit=100Mi \
+          --set deployment.initContainerName=generator \
+          --set deployment.initContainerImage=alpine \
+          --set deployment.initContainerCommand='{sh,-c,echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html}' \
+          --set service.name=myweb-service \
+          --set service.selector.app=myweb \
+          --set service.port=80 \
+          --set service.targetPort=80 \
+          --set service.serviceType=NodePort
 
     - name: Verify Deployment
       run: |
-        kubectl wait --for=condition=available --timeout=300s deployment/{{ .Values.deployment.name }}
-        DEPLOYED_MESSAGE=$(kubectl get pods -l app={{ .Values.deployment.name }} -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
+        kubectl wait --for=condition=available --timeout=300s deployment/myweb
+        DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
         if [ -z "$DEPLOYED_MESSAGE" ]; then
           echo "Error: Deployment does not expose 'Welcome to Kubernetes' message."
           exit 1
