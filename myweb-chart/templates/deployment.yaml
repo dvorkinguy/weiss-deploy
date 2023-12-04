@@ -32,7 +32,6 @@ spec:
         volumeMounts:
         - name: docroot
           mountPath: /docroot
-  volumes:
-  - name: docroot
-    emptyDir: {}
-
+      volumes:
+      - name: docroot
+        emptyDir: {}
