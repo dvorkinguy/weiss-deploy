@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.name }}
+    spec:
+      containers:
+        - name: {{ .Values.deployment.containerName }}
+          image: {{ .Values.deployment.containerImage }}
+          resources:
+            requests:
+              cpu: {{ .Values.deployment.cpuRequest }}
+              memory: {{ .Values.deployment.memoryRequest }}
+            limits:
+              cpu: {{ .Values.deployment.cpuLimit }}
+              memory: {{ .Values.deployment.memoryLimit }}
+          volumeMounts:
+            - name: docroot
+              mountPath: /usr/local/apache2/htdocs
+      initContainers:
+        - name: {{ .Values.deployment.initContainerName }}
+          image: {{ .Values.deployment.initContainerImage }}
+          command: {{ .Values.deployment.initContainerCommand }}
+          volumeMounts:
+            - name: docroot
+              mountPath: /docroot
+      volumes:
+        - name: docroot
+          emptyDir: {{ .Values.volumes.docroot }}

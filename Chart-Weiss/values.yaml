@@ -1,0 +1,23 @@
+deployment:
+  name: myweb
+  replicas: 3
+  containerName: httpd
+  containerImage: httpd
+  cpuRequest: 100m
+  memoryRequest: 50Mi
+  cpuLimit: 200m
+  memoryLimit: 100Mi
+  initContainerName: generator
+  initContainerImage: alpine
+  initContainerCommand: ['sh', '-c', 'echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html']
+
+service:
+  name: myweb-service
+  selector:
+    app: myweb
+  port: 80
+  targetPort: 80
+  serviceType: NodePort
+
+volumes:
+  docroot: {}
