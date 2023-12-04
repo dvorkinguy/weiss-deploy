@@ -1,3 +1,4 @@
+# myweb-chart/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,25 +14,25 @@ spec:
         app: {{ .Values.deployment.name }}
     spec:
       containers:
-        - name: {{ .Values.deployment.containerName }}
-          image: {{ .Values.deployment.containerImage }}
-          resources:
-            requests:
-              cpu: {{ .Values.deployment.cpuRequest }}
-              memory: {{ .Values.deployment.memoryRequest }}
-            limits:
-              cpu: {{ .Values.deployment.cpuLimit }}
-              memory: {{ .Values.deployment.memoryLimit }}
-          volumeMounts:
-            - name: docroot
-              mountPath: /usr/local/apache2/htdocs
-      initContainers:
-        - name: {{ .Values.deployment.initContainerName }}
-          image: {{ .Values.deployment.initContainerImage }}
-          command: {{ .Values.deployment.initContainerCommand }}
-          volumeMounts:
-            - name: docroot
-              mountPath: /docroot
-      volumes:
+      - name: {{ .Values.deployment.containerName }}
+        image: {{ .Values.deployment.containerImage }}
+        resources:
+          requests:
+            cpu: {{ .Values.deployment.cpuRequest }}
+            memory: {{ .Values.deployment.memoryRequest }}
+          limits:
+            cpu: {{ .Values.deployment.cpuLimit }}
+            memory: {{ .Values.deployment.memoryLimit }}
+        volumeMounts:
         - name: docroot
-          emptyDir: {{ .Values.volumes.docroot }}
+          mountPath: /usr/local/apache2/htdocs
+      initContainers:
+      - name: {{ .Values.deployment.initContainerName }}
+        image: {{ .Values.deployment.initContainerImage }}
+        command: {{ .Values.deployment.initContainerCommand }}
+        volumeMounts:
+        - name: docroot
+          mountPath: /docroot
+  volumes:
+  - name: docroot
+    emptyDir: {}
