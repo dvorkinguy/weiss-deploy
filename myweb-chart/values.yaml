@@ -1,4 +1,3 @@
-# myweb-chart/values.yaml
 deployment:
   name: myweb
   replicas: 3
@@ -19,6 +18,3 @@ service:
   port: 80
   targetPort: 80
   serviceType: NodePort
-
-volumes:
-  docroot: {}
