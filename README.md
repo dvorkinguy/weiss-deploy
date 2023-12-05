@@ -80,6 +80,7 @@ error: timed out waiting for the condition on deployments/myweb
 Error: Process completed with exit code 1.
 
 # Solution
+Incresed timeout to 600 didn't helped.
 
 
 ---
