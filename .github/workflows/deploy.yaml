@@ -44,12 +44,21 @@ jobs:
           --set service.port=80 \
           --set service.targetPort=80 \
           --set service.serviceType=NodePort
+
+    - name: Describe Deployment
+      run: kubectl describe deployment myweb -n myweb-namespace
+
+
+    - name: Get Pod Logs
+      run: kubectl logs -l app=myweb -n myweb-namespace
+
     
     - name: Check Deployment Status
       run: kubectl get deployment myweb -n myweb-namespace
 
+    
     - name: Wait for Deployment to be Available
-      run: kubectl wait --for=condition=available --timeout=180s deployment/myweb -n myweb-namespace
+      run: kubectl wait --for=condition=available --timeout=300s deployment/myweb -n myweb-namespace
 
     - name: Run Helm Tests
       run: |

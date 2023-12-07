@@ -5,8 +5,8 @@ deployment:
   containerImage: httpd
   cpuRequest: 100m
   memoryRequest: 50Mi
-  cpuLimit: 200m
-  memoryLimit: 100Mi
+  cpuLimit: 300m
+  memoryLimit: 150Mi
   initContainerName: generator
   initContainerImage: alpine
   initContainerCommand: ['sh', '-c', 'echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html']
