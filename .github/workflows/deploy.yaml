@@ -23,27 +23,15 @@ jobs:
         with:
           version: 'latest'
 
+      # ... (other parts of the workflow)
+
       - name: Deploy Helm Chart
         run: |
           kubectl create namespace myweb-namespace
           helm install myweb-release ./myweb-chart \
             --namespace=myweb-namespace \
-            --set deployment.name=myweb \
-            --set deployment.replicas=3 \
-            --set deployment.containerName=httpd \
-            --set deployment.containerImage=httpd \
-            --set deployment.cpuRequest=100m \
-            --set deployment.memoryRequest=50Mi \
-            --set deployment.cpuLimit=400m \
-            --set deployment.memoryLimit=200Mi \
-            --set deployment.initContainerName=generator \
-            --set deployment.initContainerImage=alpine \
-            --set deployment.initContainerCommand='{sh,-c,echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html}' \
-            --set service.name=myweb-service \
-            --set service.selector.app=myweb \
-            --set service.port=80 \
-            --set service.targetPort=80 \
-            --set service.serviceType=NodePort
+            -f myweb-chart/values.yaml
+
 
       - name: Describe Deployment
         run: kubectl describe deployment myweb -n myweb-namespace
