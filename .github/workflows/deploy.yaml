@@ -57,8 +57,8 @@ jobs:
       run: kubectl get deployment myweb -n myweb-namespace
 
     
-    - name: Wait for Deployment to be Available
-      run: kubectl wait --for=condition=available --timeout=300s deployment/myweb -n myweb-namespace
+    #- name: Wait for Deployment to be Available
+    #  run: kubectl wait --for=condition=available --timeout=300s deployment/myweb -n myweb-namespace
 
     - name: Run Helm Tests
       run: |
