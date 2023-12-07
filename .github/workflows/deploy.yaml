@@ -42,6 +42,10 @@ jobs:
           --set service.port=80 \
           --set service.targetPort=80 \
           --set service.serviceType=NodePort
+    
+    - name: Run Helm Tests
+      run: |
+        helm test myweb-release
 
     - name: Check Deployment Status
       run: kubectl get deployment myweb
