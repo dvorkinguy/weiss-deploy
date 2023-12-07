@@ -34,8 +34,8 @@ jobs:
             --set deployment.containerImage=httpd \
             --set deployment.cpuRequest=100m \
             --set deployment.memoryRequest=50Mi \
-            --set deployment.cpuLimit=200m \
-            --set deployment.memoryLimit=100Mi \
+            --set deployment.cpuLimit=400m \
+            --set deployment.memoryLimit=200Mi \
             --set deployment.initContainerName=generator \
             --set deployment.initContainerImage=alpine \
             --set deployment.initContainerCommand='{sh,-c,echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html}' \
@@ -49,7 +49,7 @@ jobs:
         run: kubectl describe deployment myweb -n myweb-namespace
 
       - name: Wait for Deployment to be Available
-        run: kubectl wait --for=condition=available --timeout=180s deployment/myweb -n myweb-namespace
+        run: kubectl wait --for=condition=available --timeout=300s deployment/myweb -n myweb-namespace
 
       - name: Get Pod Logs
         run: kubectl logs -l app=myweb -n myweb-namespace
@@ -64,7 +64,7 @@ jobs:
       - name: Verify Deployment
         run: |
           kubectl get pods -n myweb-namespace
-          sleep 30
+          sleep 60
           DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
           echo "Deployed Message: $DEPLOYED_MESSAGE"
           if [ -z "$DEPLOYED_MESSAGE" ]; then
