@@ -48,14 +48,14 @@ jobs:
       - name: Describe Deployment
         run: kubectl describe deployment myweb -n myweb-namespace
 
+      - name: Wait for Deployment to be Available
+        run: kubectl wait --for=condition=available --timeout=180s deployment/myweb -n myweb-namespace
+
       - name: Get Pod Logs
         run: kubectl logs -l app=myweb -n myweb-namespace
 
       - name: Check Deployment Status
         run: kubectl get deployment myweb -n myweb-namespace
-
-      - name: Wait for Deployment to be Available
-        run: kubectl wait --for=condition=available --timeout=120s deployment/myweb -n myweb-namespace
 
       - name: Run Helm Tests
         run: |
