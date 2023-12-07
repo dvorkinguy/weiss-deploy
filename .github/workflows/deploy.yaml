@@ -54,7 +54,7 @@ jobs:
       run: |
         kubectl get pods
         kubectl wait --for=condition=available --timeout=180s deployment/myweb
-        sleep 10  # Add a delay to ensure the pods are ready
+        sleep 30
         DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
         echo "Deployed Message: $DEPLOYED_MESSAGE"
         if [ -z "$DEPLOYED_MESSAGE" ]; then
