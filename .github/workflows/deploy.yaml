@@ -4,7 +4,7 @@ name: myweb
 on:
   push:
     branches:
-      - main
+      - weiss-resolved
 
 jobs:
   deploy:
