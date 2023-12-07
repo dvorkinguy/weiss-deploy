@@ -1,12 +1,9 @@
-# .github/workflows/deploy.yaml
 name: myweb
 
 on:
   push:
     branches:
       - weiss-resolved
-    paths:
-      - '.github/workflows/deploy.yaml'
 
 jobs:
   deploy:
@@ -46,9 +43,13 @@ jobs:
           --set service.targetPort=80 \
           --set service.serviceType=NodePort
 
+    - name: Check Deployment Status
+      run: kubectl get deployment myweb
+
     - name: Verify Deployment
       run: |
-        kubectl wait --for=condition=available --timeout=60s deployment/myweb
+        kubectl get pods
+        kubectl wait --for=condition=available --timeout=180s deployment/myweb
         sleep 10  # Add a delay to ensure the pods are ready
         DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
         echo "Deployed Message: $DEPLOYED_MESSAGE"
