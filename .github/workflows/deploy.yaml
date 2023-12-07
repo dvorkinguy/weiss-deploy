@@ -26,6 +26,7 @@ jobs:
     - name: Deploy Helm Chart
       run: |
         helm install myweb-release ./myweb-chart \
+          --namespace=myweb-namespace \
           --set deployment.name=myweb \
           --set deployment.replicas=3 \
           --set deployment.containerName=httpd \
@@ -48,12 +49,12 @@ jobs:
         helm test myweb-release
 
     - name: Check Deployment Status
-      run: kubectl get deployment myweb
+      run: kubectl get deployment myweb -n myweb-namespace
 
     - name: Verify Deployment
       run: |
-        kubectl get pods
-        kubectl wait --for=condition=available --timeout=180s deployment/myweb
+        kubectl get pods -n myweb-namespace
+        kubectl wait --for=condition=available --timeout=180s deployment/myweb -n myweb-namespace
         sleep 30
         DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
         echo "Deployed Message: $DEPLOYED_MESSAGE"
