@@ -23,8 +23,6 @@ jobs:
         with:
           version: 'latest'
 
-      # ... (other parts of the workflow)
-
       - name: Deploy Helm Chart
         run: |
           kubectl create namespace myweb-namespace
@@ -37,7 +35,7 @@ jobs:
         run: kubectl describe deployment myweb -n myweb-namespace
 
       - name: Wait for Deployment to be Available
-        run: kubectl wait --for=condition=available --timeout=300s deployment/myweb -n myweb-namespace
+        run: kubectl wait --for=condition=available --timeout=600s deployment/myweb -n myweb-namespace
 
       - name: Get Pod Logs
         run: kubectl logs -l app=myweb -n myweb-namespace
