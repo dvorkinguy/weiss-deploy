@@ -30,12 +30,23 @@ jobs:
             --namespace=myweb \
             -f myweb-chart/values.yaml
 
-
       - name: Describe Deployment
         run: kubectl describe deployment myweb -n myweb
 
+      - name: Check Deployment Status
+        run: |
+          while true; do
+            STATUS=$(kubectl get deployment myweb -n myweb -o jsonpath="{.status.conditions[?(@.type=='Available')].status}")
+            echo "Deployment Status: $STATUS"
+            if [ "$STATUS" == "True" ]; then
+              break  # Exit the loop when the deployment is available
+            fi
+            sleep 5
+          done
+
+
       - name: Wait for Deployment to be Available
-        run: kubectl wait --for=condition=available --timeout=60s deployment/myweb -n myweb
+        run: kubectl wait --for=condition=available --timeout=120s deployment/myweb -n myweb
 
       - name: Get Pod Logs
         run: kubectl logs -l app=myweb -n myweb
