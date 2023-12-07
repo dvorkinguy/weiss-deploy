@@ -10,70 +10,67 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Set up k3d
-      run: |
-        curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-        k3d cluster create myweb
+      - name: Set up k3d
+        run: |
+          curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+          k3d cluster create myweb
 
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v1
-      with:
-        version: 'latest'
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
 
-    - name: Deploy Helm Chart
-      run: |
-        kubectl create namespace myweb-namespace
-        helm install myweb-release ./myweb-chart \
-          --namespace=myweb-namespace \
-          --set deployment.name=myweb \
-          --set deployment.replicas=3 \
-          --set deployment.containerName=httpd \
-          --set deployment.containerImage=httpd \
-          --set deployment.cpuRequest=100m \
-          --set deployment.memoryRequest=50Mi \
-          --set deployment.cpuLimit=200m \
-          --set deployment.memoryLimit=100Mi \
-          --set deployment.initContainerName=generator \
-          --set deployment.initContainerImage=alpine \
-          --set deployment.initContainerCommand='{sh,-c,echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html}' \
-          --set service.name=myweb-service \
-          --set service.selector.app=myweb \
-          --set service.port=80 \
-          --set service.targetPort=80 \
-          --set service.serviceType=NodePort
+      - name: Deploy Helm Chart
+        run: |
+          kubectl create namespace myweb-namespace
+          helm install myweb-release ./myweb-chart \
+            --namespace=myweb-namespace \
+            --set deployment.name=myweb \
+            --set deployment.replicas=3 \
+            --set deployment.containerName=httpd \
+            --set deployment.containerImage=httpd \
+            --set deployment.cpuRequest=100m \
+            --set deployment.memoryRequest=50Mi \
+            --set deployment.cpuLimit=200m \
+            --set deployment.memoryLimit=100Mi \
+            --set deployment.initContainerName=generator \
+            --set deployment.initContainerImage=alpine \
+            --set deployment.initContainerCommand='{sh,-c,echo "<html> Welcome to Kubernetes </html>" > /docroot/index.html}' \
+            --set service.name=myweb-service \
+            --set service.selector.app=myweb \
+            --set service.port=80 \
+            --set service.targetPort=80 \
+            --set service.serviceType=NodePort
 
-    - name: Describe Deployment
-      run: kubectl describe deployment myweb -n myweb-namespace
+      - name: Describe Deployment
+        run: kubectl describe deployment myweb -n myweb-namespace
 
+      - name: Get Pod Logs
+        run: kubectl logs -l app=myweb -n myweb-namespace
 
-    - name: Get Pod Logs
-      run: kubectl logs -l app=myweb -n myweb-namespace
+      - name: Check Deployment Status
+        run: kubectl get deployment myweb -n myweb-namespace
 
-    
-    - name: Check Deployment Status
-      run: kubectl get deployment myweb -n myweb-namespace
+      - name: Wait for Deployment to be Available
+        run: kubectl wait --for=condition=available --timeout=120s deployment/myweb -n myweb-namespace
 
-    
-    #- name: Wait for Deployment to be Available
-    #  run: kubectl wait --for=condition=available --timeout=300s deployment/myweb -n myweb-namespace
+      - name: Run Helm Tests
+        run: |
+          helm test myweb-release
 
-    - name: Run Helm Tests
-      run: |
-        helm test myweb-release
+      - name: Verify Deployment
+        run: |
+          kubectl get pods -n myweb-namespace
+          sleep 30
+          DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
+          echo "Deployed Message: $DEPLOYED_MESSAGE"
+          if [ -z "$DEPLOYED_MESSAGE" ]; then
+            echo "Error: Deployment does not expose 'Welcome to Kubernetes' message."
+            exit 1
+          fi
 
-    - name: Verify Deployment
-      run: |
-        kubectl get pods -n myweb-namespace
-        sleep 30
-        DEPLOYED_MESSAGE=$(kubectl get pods -l app=myweb -o jsonpath="{.items[0].metadata.name}" | xargs -I {} kubectl logs {} | grep "Welcome to Kubernetes")
-        echo "Deployed Message: $DEPLOYED_MESSAGE"
-        if [ -z "$DEPLOYED_MESSAGE" ]; then
-          echo "Error: Deployment does not expose 'Welcome to Kubernetes' message."
-          exit 1
-        fi    
-
-    - name: Tear down k3d cluster
-      run: k3d cluster delete myweb
+      - name: Tear down k3d cluster
+        run: k3d cluster delete myweb
