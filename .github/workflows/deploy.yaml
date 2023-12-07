@@ -25,6 +25,7 @@ jobs:
 
     - name: Deploy Helm Chart
       run: |
+        kubectl create namespace myweb-namespace
         helm install myweb-release ./myweb-chart \
           --namespace=myweb-namespace \
           --set deployment.name=myweb \
